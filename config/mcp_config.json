@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "MongoDB-WFM": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mongodb-mcp-server",
+        "--connectionString",
+        "mongodb://localhost:27017/wfm_database",
+        "--readOnly",
+        "--transport",
+        "http",
+        "--httpPort",
+        "3001",
+        "--loggers",
+        "disk,stderr"
+      ],
+      "env": {
+        "MDB_MCP_READ_ONLY": "true",
+        "MDB_MCP_TRANSPORT": "http",
+        "MDB_MCP_HTTP_PORT": "3001"
+      }
+    }
+  }
+}
