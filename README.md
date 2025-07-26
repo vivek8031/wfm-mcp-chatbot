@@ -1,14 +1,16 @@
 # 👥 WFM Database Assistant
 
-A sophisticated Workforce Management Database Assistant powered by **Anthropic Claude** and **MongoDB MCP Server**. Chat naturally with your WFM data using AI.
+A sophisticated **FastAPI-powered** Workforce Management Database Assistant with **Anthropic Claude AI** and **MongoDB MCP Server**. Chat naturally with your WFM data using intelligent multi-turn conversations.
 
-## 🎯 Features
+## ✨ Key Features
 
-- **🤖 AI-Powered Chat**: Natural language queries with Claude 3.5 Sonnet
-- **📊 9 WFM Collections**: Complete workforce data coverage
+- **🤖 Multi-Turn AI Chat**: Advanced conversation flow with Claude 3.5 Sonnet
+- **📊 9 WFM Collections**: Complete workforce data coverage (450+ documents)
 - **⚡ Real-time Analysis**: Instant payroll, employee, and activity insights
-- **📈 Visual Analytics**: Charts and dashboards for workforce metrics
-- **🔍 Smart Search**: Find employees, analyze payroll, track activities
+- **🔄 Smart Retry Logic**: 10-turn conversation limit with self-correction
+- **📝 Markdown Rendering**: Beautiful formatted responses in web interface
+- **⏱️ Loading Indicators**: Real-time feedback during query processing
+- **🔍 Cross-Collection Analytics**: Complex queries spanning multiple data sources
 - **🎉 Holiday Management**: Comprehensive holiday schedule tracking
 
 ## 🗂️ Database Structure
@@ -18,28 +20,29 @@ A sophisticated Workforce Management Database Assistant powered by **Anthropic C
 - **activities**: Work activity definitions and descriptions
 - **activityTypes**: Categories and types of work activities
 - **paycodes**: Payroll codes and compensation rules
-- **itms_wfm_roles**: User roles and permissions
-- **ITMS_HOLIDAYS_LIST**: Holiday schedules by location
+- **itms_wfm_roles**: User roles and permissions in the WFM system
+- **ITMS_HOLIDAYS_LIST**: Holiday schedules with dates and descriptions
 
 ### Transactional Data Collections (3)
 - **dailyActivities**: Daily work activity tracking and time logs
-- **itms_wfm_payroll**: Payroll records with hours, dates, counties
-- **itms_wfm_user_roles**: User role assignments and access
+- **itms_wfm_payroll**: Payroll records with hours, dates, counties, and employee details
+- **itms_wfm_user_roles**: User role assignments and access permissions
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 1. **Node.js** (20.19.0+) for MongoDB MCP Server
-2. **Python** (3.9+) for the application
-3. **MongoDB** running locally with your WFM data
+2. **Python** (3.9+) for the FastAPI application
+3. **MongoDB** running locally with your WFM data loaded
 4. **Anthropic API Key** for Claude integration
 
 ### Installation
 
 1. **Clone and Setup**:
 ```bash
-cd /Users/vivekchithari/Desktop/Bhumika/wfm-mcp-chatbot
+git clone <your-repo-url>
+cd wfm-mcp-chatbot
 pip install -r requirements.txt
 npm install -g mongodb-mcp-server
 ```
@@ -48,89 +51,78 @@ npm install -g mongodb-mcp-server
 ```bash
 cp config/.env.example config/.env
 # Edit config/.env with your credentials:
-# ANTHROPIC_API_KEY=your_claude_api_key
+# ANTHROPIC_API_KEY=your_claude_api_key_here
 # MONGODB_CONNECTION_STRING=mongodb://localhost:27017/wfm_database
 ```
 
 3. **Start MongoDB MCP Server**:
 ```bash
-npx -y mongodb-mcp-server --connectionString="mongodb://localhost:27017/wfm_database" --readOnly --transport http --httpPort 3001
+npx -y mongodb-mcp-server \
+  --connectionString="mongodb://localhost:27017/wfm_database" \
+  --readOnly \
+  --transport http \
+  --httpPort 3001 \
+  --loggers disk,stderr
 ```
 
-4. **Run the Application**:
+4. **Run the FastAPI Application**:
 ```bash
-cd src
-streamlit run app.py
+python3 src/main.py
 ```
 
-5. **Open Browser**: Visit `http://localhost:8501`
-
-## 🧪 Testing
-
-Run comprehensive tests to verify your setup:
-
-```bash
-cd tests
-python run_tests.py
-```
-
-Tests include:
-- ✅ MCP server connectivity
-- ✅ All 9 collections accessibility
-- ✅ Data integrity checks
-- ✅ Query functionality
-- ✅ Chat handler integration
-- ✅ Performance metrics
+5. **Open Browser**: Visit `http://localhost:8000`
 
 ## 💬 Example Queries
 
-Try these natural language queries:
+Try these natural language queries in the chat interface:
 
 ### Employee Management
-- *"Find employee with badge ID 2114"*
-- *"Show me all Full-Time employees"*
-- *"How many employees do we have by type?"*
+- *"Find employees from East Krista county"*
+- *"Show me employee with badge ID 2114"*
+- *"How many employees do we have by employment type?"*
 
 ### Payroll Analysis
-- *"Show payroll summary for East Krista county"*
-- *"Which employees worked overtime last month?"*
-- *"What are the top 5 counties by total hours?"*
+- *"Show payroll trends by county"*
+- *"Which counties have the highest total hours worked?"*
+- *"Analyze payroll data for the last 30 days"*
 
 ### Activity Tracking
-- *"Show daily activities for December 15th"*
+- *"Show recent daily activities"*
 - *"What's the activity completion rate?"*
-- *"List all activities for employee John Smith"*
+- *"Find activities for specific employees"*
 
 ### Holiday Management
 - *"What holidays are coming up?"*
-- *"Show holidays for next quarter"*
-- *"Holiday schedule for workforce planning"*
+- *"Show upcoming holidays for workforce planning"*
+- *"Holiday schedule for the next 90 days"*
 
 ### Advanced Analytics
 - *"Generate a comprehensive workforce report"*
-- *"Analyze payroll trends by county"*
-- *"Show employee productivity metrics"*
+- *"Show employee distribution across counties"*
+- *"Create workforce analytics dashboard"*
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Streamlit     │    │   Anthropic      │    │   MCP Client    │
-│   Frontend      │◄──►│   Claude AI      │◄──►│   (Python)      │
+│   FastAPI       │    │   Anthropic      │    │   MCP Client    │
+│   + HTML UI     │◄──►│   Claude AI      │◄──►│   (AsyncExit)   │
+│   (Port 8000)   │    │   Multi-turn     │    │   Stack Mgmt    │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
-                                                         │
-                                                         ▼
-                                               ┌─────────────────┐
-                                               │  MongoDB MCP    │
-                                               │    Server       │
-                                               │   (Node.js)     │
-                                               └─────────────────┘
+         │                       │                         │
+         ▼                       ▼                         ▼
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Markdown      │    │  Conversation    │    │  MongoDB MCP    │
+│   Rendering     │    │   Context        │    │    Server       │
+│   + Loading     │    │   History        │    │   (Node.js)     │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
                                                          │
                                                          ▼
                                                ┌─────────────────┐
                                                │   MongoDB       │
                                                │ wfm_database    │
                                                │ (9 Collections) │
+                                               │  450+ docs      │
                                                └─────────────────┘
 ```
 
@@ -139,19 +131,18 @@ Try these natural language queries:
 ```
 wfm-mcp-chatbot/
 ├── src/
-│   ├── app.py                 # Main Streamlit application
-│   ├── chat_handler.py        # Claude AI integration
-│   ├── mcp_client.py          # MCP client implementation
-│   ├── collection_manager.py  # WFM collection management
-│   └── wfm_queries.py         # Query templates & builders
+│   ├── main.py                   # FastAPI application with HTML UI
+│   ├── chat_handler.py           # Multi-turn Claude AI integration  
+│   ├── mcp_connection_manager.py # Proper MCP SDK implementation
+│   ├── collection_manager.py     # WFM collection management
+│   └── wfm_queries.py           # Query templates & builders
 ├── config/
-│   ├── .env                   # Environment variables
-│   └── mcp_config.json        # MCP server configuration
-├── tests/
-│   ├── test_wfm_integration.py # Comprehensive tests
-│   └── run_tests.py           # Test runner
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
+│   ├── .env.example             # Environment template
+│   ├── .env                     # Your environment (git-ignored)
+│   └── mcp_config.json          # MCP server configuration
+├── .gitignore                   # Comprehensive exclusions
+├── requirements.txt             # Python dependencies
+└── README.md                    # This file
 ```
 
 ## ⚙️ Configuration
@@ -163,128 +154,174 @@ wfm-mcp-chatbot/
 ANTHROPIC_API_KEY=your_claude_api_key_here
 MONGODB_CONNECTION_STRING=mongodb://localhost:27017/wfm_database
 
-# Optional
+# Optional (with defaults)
 MCP_SERVER_URL=http://localhost:3001
+MCP_TIMEOUT=10000
 LOG_LEVEL=INFO
+WFM_DATABASE_NAME=wfm_database
+DEBUG_MODE=false
 ```
 
-### MCP Server Options
+### MCP Server Configuration
 
-```bash
-# Basic setup (read-only)
-npx mongodb-mcp-server --connectionString="mongodb://localhost:27017/wfm_database" --readOnly
+The `config/mcp_config.json` contains the MCP server setup:
 
-# HTTP transport (recommended for development)
-npx mongodb-mcp-server --connectionString="mongodb://localhost:27017/wfm_database" --readOnly --transport http --httpPort 3001
-
-# With logging
-npx mongodb-mcp-server --connectionString="mongodb://localhost:27017/wfm_database" --readOnly --loggers disk,stderr
+```json
+{
+  "mcpServers": {
+    "MongoDB-WFM": {
+      "command": "npx",
+      "args": ["-y", "mongodb-mcp-server", "--connectionString", "mongodb://localhost:27017/wfm_database", "--readOnly"],
+      "env": {
+        "MDB_MCP_READ_ONLY": "true"
+      }
+    }
+  }
+}
 ```
 
-## 🎨 UI Features
+## 🎨 Web Interface Features
 
 ### Chat Interface
-- Natural language queries
-- Real-time responses
-- Query history
-- Suggested questions
+- **Natural Language Queries**: Ask questions in plain English
+- **Multi-turn Conversations**: AI remembers context and can self-correct
+- **Markdown Rendering**: Beautiful formatted responses with headers, lists, code blocks
+- **Loading Indicators**: Real-time "Thinking..." feedback during processing
+- **Query History**: Conversation context preserved across messages
 
-### Analytics Dashboard
-- **Overview**: Workforce summary with key metrics
-- **Employees**: Search and analyze employee data
-- **Payroll**: County-wise payroll analysis with charts
-- **Activities**: Holiday management and activity tracking
+### Database Overview Sidebar
+- **Collection Statistics**: Real-time document counts for all 9 collections
+- **Quick Query Buttons**: One-click access to common queries
+- **Connection Status**: Live health monitoring
+- **Metrics Dashboard**: Total collections, records, and data breakdown
 
-### Sidebar
-- Collection overview (9 collections)
-- Quick query buttons
-- Database statistics
-- Connection status
+### Advanced Features
+- **Tool Call Retry Logic**: Up to 10 API calls with intelligent error recovery
+- **Timeout Protection**: 20-second safeguards prevent hanging queries
+- **Error Handling**: Graceful fallbacks for invalid queries
+- **Cross-Collection Joins**: Complex analytics spanning multiple data sources
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
 
-1. **MCP Server Not Responding**:
+1. **MCP Server Connection Failed**:
    ```bash
    # Check if MongoDB is running
-   brew services list | grep mongodb
+   mongosh "mongodb://localhost:27017/wfm_database"
    
    # Restart MCP server
    pkill -f mongodb-mcp-server
-   npx mongodb-mcp-server --connectionString="mongodb://localhost:27017/wfm_database" --readOnly --transport http --httpPort 3001
+   npx -y mongodb-mcp-server --connectionString="mongodb://localhost:27017/wfm_database" --readOnly --transport http --httpPort 3001
    ```
 
-2. **Import Errors**:
+2. **FastAPI Import Errors**:
    ```bash
-   # Ensure you're in the src directory
-   cd src
-   streamlit run app.py
+   # Run from project root (not src/)
+   python3 src/main.py
    ```
 
-3. **API Key Issues**:
+3. **Chat Not Working**:
    ```bash
-   # Verify environment variables
-   echo $ANTHROPIC_API_KEY
+   # Verify API key is set
+   grep ANTHROPIC_API_KEY config/.env
    
-   # Check .env file
-   cat config/.env
+   # Check application logs
+   python3 src/main.py
    ```
 
-4. **Database Connection**:
+4. **Database Connection Issues**:
    ```bash
    # Test MongoDB connection
    mongosh "mongodb://localhost:27017/wfm_database"
    
-   # List collections
+   # Verify collections exist
    show collections
    ```
 
-### Testing Connection
+### Health Check Endpoints
 
 ```bash
-# Test MCP server
-curl http://localhost:3001
+# Check application health
+curl http://localhost:8000/health
 
-# Run integration tests
-cd tests && python run_tests.py
+# Get database statistics  
+curl http://localhost:8000/stats
+
+# View collection overview
+curl http://localhost:8000/collections
 ```
 
-## 📊 Performance
+## 📊 Performance & Scale
 
-- **Query Response**: < 2 seconds for most queries
-- **Data Loading**: 450+ documents across 9 collections
-- **Concurrent Users**: Designed for multiple simultaneous users
-- **Memory Usage**: ~100MB typical usage
+- **Query Response**: 2-15 seconds for complex multi-turn conversations
+- **Data Processing**: 450+ documents across 9 collections
+- **Concurrent Users**: FastAPI async architecture supports multiple users
+- **Memory Usage**: ~150MB typical usage with MCP connection pooling
+- **Conversation Turns**: Up to 10 API calls per query with intelligent retry logic
 
-## 🛡️ Security
+## 🛡️ Security Features
 
-- **Read-Only Mode**: MCP server runs in read-only mode by default
-- **API Key Security**: Environment variables for sensitive data
-- **Input Validation**: Query validation and sanitization
-- **Error Handling**: Comprehensive error handling and logging
+- **Read-Only Database Access**: MCP server runs in strict read-only mode
+- **API Key Protection**: Environment variables with comprehensive .gitignore
+- **Input Validation**: Query sanitization and error handling
+- **Request Timeouts**: Prevents resource exhaustion from long-running queries
+- **Conversation Limits**: 10-turn maximum prevents infinite API loops
 
-## 🚀 Deployment
+## 🚀 API Endpoints
 
-### Local Development
-- Use the quick start guide above
-- MongoDB MCP server on port 3001
-- Streamlit app on port 8501
+### Core Endpoints
+- `GET /` - Web interface with chat functionality
+- `POST /chat` - Process natural language queries
+- `GET /health` - Application health check
+- `GET /collections` - Database collection overview
 
-### Production
-- Use environment variables for configuration
-- Consider Docker deployment
-- Implement authentication if needed
-- Monitor logs and performance
+### Specialized Endpoints
+- `POST /employees/search` - Employee search functionality
+- `POST /payroll/analyze` - Payroll data analysis
+- `POST /holidays/upcoming` - Holiday schedule queries
+- `GET /reports/workforce` - Comprehensive workforce reports
+
+## 🎯 Advanced Use Cases
+
+### Complex Analytics Queries
+- **Multi-collection joins**: "Show employees from East Krista county and their recent payroll records"
+- **Temporal analysis**: "Analyze workforce trends over the last quarter"
+- **Anomaly detection**: "Find unusual payroll patterns or outliers"
+- **Predictive insights**: "Which counties need more workforce coverage?"
+
+### Conversation Examples
+```
+You: "Find employees from East Krista county"
+Assistant: "I found 1 employee who worked in East Krista county..."
+
+You: "What's their recent activity?"
+Assistant: [Remembers context] "For Jamie Lowe (badge 2114)..."
+
+You: "Show me the payroll trends for that county"
+Assistant: [Continues conversation] "Based on East Krista county data..."
+```
 
 ## 🤝 Contributing
 
-This is a complete, production-ready WFM Database Assistant. The architecture is modular and extensible for future enhancements.
+This project uses a clean, modular architecture:
+
+- **`main.py`**: FastAPI application with lifespan management
+- **`chat_handler.py`**: Multi-turn conversation logic with Claude
+- **`mcp_connection_manager.py`**: Proper MCP SDK implementation with AsyncExitStack
+- **`collection_manager.py`**: WFM-specific database operations
+- **`wfm_queries.py`**: Query templates and builders
 
 ## 📜 License
 
-Internal use for Workforce Management Database analysis.
+Internal use for Workforce Management Database analysis and insights.
 
 ---
 
-**🎉 Ready to chat with your WFM data? Start the application and ask anything!**
+**🎉 Ready to analyze your WFM data with AI? Start the application and ask anything!**
+
+```bash
+python3 src/main.py
+# Open http://localhost:8000
+# Ask: "What can you tell me about our workforce data?"
+```
