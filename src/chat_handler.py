@@ -11,7 +11,7 @@ from datetime import datetime
 class WFMChatHandler:
     """Workforce Management Database Chat Handler using Anthropic Claude"""
     
-    def __init__(self, mcp_manager: MCPConnectionManager = None, model: str = "claude-3-5-sonnet-20241022"):
+    def __init__(self, mcp_manager: MCPConnectionManager = None, model: str = "claude-3-5-haiku-20241022"):
         self.model = model
         
         # Initialize Anthropic client
